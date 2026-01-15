@@ -32,6 +32,7 @@ async function run() {
         const db = client.db('local_chef_bazaar_data');
         const userCollections = db.collection('users');
 
+        //user related api
         app.get('/users', async (req, res) => {
             const cursor = await userCollections.find().toArray();
             res.send(cursor);
@@ -40,14 +41,12 @@ async function run() {
         app.post('/users', async (req, res) => {
             const user = req.body;
             const email = user.email;
-            const exictingUser =await userCollections.findOne({ email });
-            // console.log(exictingUser);
+            const exictingUser = await userCollections.findOne({ email });
             if (exictingUser) {
                 return res.status(409).send({ message: 'User already exists' });
             }
             else {
                 const result = await userCollections.insertOne(user);
-                // console.log(result);
                 return res.send(result);
             }
         })
