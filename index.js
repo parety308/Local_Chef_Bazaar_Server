@@ -33,17 +33,23 @@ async function run() {
         const userCollections = db.collection('users');
         const mealCollections = db.collection('meals');
         const reviewCollections = db.collection('reviews');
+        const favouriteCollections = db.collection('favourites');
 
         //user related api
         app.get('/users', async (req, res) => {
             const cursor = await userCollections.find().toArray();
             res.send(cursor);
         });
+        app.get('/users-role/:email', async (req, res) => {
+            const email = req.params.email;
+            const result = await userCollections.findOne({ email });
+            res.send(result);
+        })
 
         app.post('/users', async (req, res) => {
             const user = req.body;
             const email = user.email;
-            user.role = 'customer';
+            user.role = 'user';
             const exictingUser = await userCollections.findOne({ email });
             if (exictingUser) {
                 return res.status(409).send({ message: 'User already exists' });
@@ -79,12 +85,55 @@ async function run() {
             res.send(result);
         });
 
+        app.get('/myreviews/:userEmail', async (req, res) => {
+            const userEmail = req.params.userEmail;
+            console.log(userEmail)
+            if (!userEmail) {
+                return res.status(400).send({ message: "User is required" });
+            }
+            else {
+                const query = { userEmail };
+                const result = await reviewCollections.find(query).toArray();
+                return res.send(result);
+            }
+        });
+
         app.post('/reviews', async (req, res) => {
             const review = req.body;
             review.date = new Date();
             const result = await reviewCollections.insertOne(review);
             res.send(result);
-        })
+        });
+
+        //favourite related apis 
+        app.get('/favourites/:userEmail', async (req, res) => {
+            const userEmail = req.params.userEmail;
+            const query = { userEmail };
+            const result = await favouriteCollections.find(query).toArray();
+            res.send(result);
+        });
+        app.post('/favourites', async (req, res) => {
+            const favourite = req.body;
+            const mealId = req.body.mealId;
+            // console.log(mealId);
+            const exictingFav = await favouriteCollections.findOne({ mealId });
+            if (exictingFav) {
+                return res.status(400).send({ message: "Already exists" });
+            }
+            else {
+                favourite.added_date = new Date();
+                const result = await favouriteCollections.insertOne(favourite);
+                return res.send(result);
+            }
+        });
+
+        app.delete('/favourites/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await favouriteCollections.deleteOne(query);
+            res.send(result);
+
+        });
 
 
         await client.db("admin").command({ ping: 1 });
