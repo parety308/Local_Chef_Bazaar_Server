@@ -34,6 +34,7 @@ async function run() {
         const mealCollections = db.collection('meals');
         const reviewCollections = db.collection('reviews');
         const favouriteCollections = db.collection('favourites');
+        const userRequestCollection = db.collection('users-request');
 
         //user related api
         app.get('/users', async (req, res) => {
@@ -59,6 +60,21 @@ async function run() {
                 return res.send(result);
             }
         });
+
+        //user-request related apis
+        app.get('/users-request', async (req, res) => {
+            const result = await userRequestCollection.find().toArray();
+            res.send(result);
+        });
+        app.post('/users-request', async (req, res) => {
+            const userRequest = req.body;
+            const result = await userRequestCollection.insertOne(userRequest);
+            res.send(result);
+
+        });
+        app.patch('/users-request/:userEmail', async (req, res) => {
+           
+        })
 
         //meals related api
         app.get('/meals', async (req, res) => {
