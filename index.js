@@ -63,7 +63,8 @@ async function run() {
 
         //user-request related apis
         app.get('/users-request', async (req, res) => {
-            const result = await userRequestCollection.find().toArray();
+            const query = { requestStatus: 'pending' };
+            const result = await userRequestCollection.find(query).toArray();
             res.send(result);
         });
         app.post('/users-request', async (req, res) => {
@@ -73,7 +74,7 @@ async function run() {
 
         });
         app.patch('/users-request/:userEmail', async (req, res) => {
-           
+            //change 
         })
 
         //meals related api
