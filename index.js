@@ -35,6 +35,7 @@ async function run() {
         const reviewCollections = db.collection('reviews');
         const favouriteCollections = db.collection('favourites');
         const userRequestCollection = db.collection('users-request');
+        const orderCollection = db.collection('orders');
 
         //user related api
         app.get('/users', async (req, res) => {
@@ -69,12 +70,25 @@ async function run() {
         });
         app.post('/users-request', async (req, res) => {
             const userRequest = req.body;
+            const exists = await userRequestCollection.findOne({
+                userEmail: userRequest.userEmail,
+                requestType: userRequest.requestType,
+                requestStatus: "pending"
+            });
+
+            if (exists) {
+                return res.send({ message: "Already requested" });
+            }
+
             const result = await userRequestCollection.insertOne(userRequest);
-            res.send(result);
+            return res.send(result);
 
         });
-        app.patch('/users-request/:userEmail', async (req, res) => {
-            //change 
+        app.delete('/users-request/:userEmail', async (req, res) => {
+            const userEmail = req.params.userEmail;
+            const user = await userRequestCollection.deleteOne({ userEmail });
+            res.send(user);
+
         })
 
         //meals related api
@@ -92,6 +106,34 @@ async function run() {
             catch (error) {
                 res.status(500).send({ message: 'Server error', error: error.message });
             }
+        });
+
+        //order related apis
+        app.get('/orders/:userEmail', async (req, res) => {
+            const userEmail = req.params.userEmail;
+            const orders = await orderCollection.find({ userEmail }).toArray();
+            res.send(orders);
+        });
+
+        app.post('/orders', async (req, res) => {
+            const orders = req.body;
+            const result = await orderCollection.insertOne(orders);
+            res.send(result);
+        });
+
+        app.patch('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            const { requestStatus } = req.body;
+
+            const filter = { _id: new ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    requestStatus: requestStatus
+                }
+            };
+
+            const result = await ordersCollection.updateOne(filter, updateDoc);
+            res.send(result);
         });
 
         //review related apis 
