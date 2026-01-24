@@ -91,11 +91,12 @@ async function run() {
 
         })
 
-        //meals related api
+        //meals related apis
         app.get('/meals', async (req, res) => {
             const result = await mealCollections.find().toArray();
             res.send(result);
         });
+
         app.get('/meals/:id', async (req, res) => {
             try {
                 const id = req.params.id;
@@ -107,6 +108,55 @@ async function run() {
                 res.status(500).send({ message: 'Server error', error: error.message });
             }
         });
+
+        app.get('/my-meals/:userEmail', async (req, res) => {
+            const userEmail = req.params.userEmail;
+            const result = await mealCollections.find({ userEmail }).toArray();
+            res.send(result);
+        });
+
+        app.post('/meals', async (req, res) => {
+            const meal = req.body;
+            const result = await mealCollections.insertOne(meal);
+            res.send(result);
+        });
+
+        app.patch('/meals/:id', async (req, res) => {
+            try {
+                const id = req.params.id;
+
+                if (!ObjectId.isValid(id)) {
+                    return res.status(400).send({ message: "Invalid meal id" });
+                }
+
+                const query = { _id: new ObjectId(id) };
+
+                const updateMeal = {
+                    $set: {
+                        mealName: req.body.mealName,
+                        price: Number(req.body.price),
+                        rating: Number(req.body.rating),
+                        ingredients: req.body.ingredients,
+                        estimatedDeliveryTime: Number(req.body.estimatedDeliveryTime),
+                    }
+                };
+
+                const result = await mealCollections.updateOne(query, updateMeal);
+                res.send(result);
+
+            } catch (error) {
+                console.error(error);
+                res.status(500).send({ message: "Internal server error" });
+            }
+        });
+
+
+        app.delete('/meals/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await mealCollections.deleteOne(query);
+            res.send(result);
+        })
 
         //order related apis
         app.get('/orders/:userEmail', async (req, res) => {
@@ -132,7 +182,7 @@ async function run() {
                 }
             };
 
-            const result = await ordersCollection.updateOne(filter, updateDoc);
+            const result = await orderCollection.updateOne(filter, updateDoc);
             res.send(result);
         });
 
@@ -146,7 +196,7 @@ async function run() {
 
         app.get('/myreviews/:userEmail', async (req, res) => {
             const userEmail = req.params.userEmail;
-            console.log(userEmail)
+            // console.log(userEmail)
             if (!userEmail) {
                 return res.status(400).send({ message: "User is required" });
             }
@@ -164,13 +214,38 @@ async function run() {
             res.send(result);
         });
 
+        app.patch('/my-reviews/:id', async (req, res) => {
+            const id = req.params.id;
+            const { review, ratings } = req.body;
+            const query = { _id: new ObjectId(id) };
+            const updateRev = {
+                $set: {
+                    review,
+                    ratings
+                }
+            }
+            const result = await reviewCollections.updateOne(query, updateRev);
+            res.send(result);
+        });
+
+        app.delete('/my-reviews/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await reviewCollections.deleteOne(query);
+            res.send(result);
+        });
+
         //favourite related apis 
         app.get('/favourites/:userEmail', async (req, res) => {
             const userEmail = req.params.userEmail;
+            // console.log(userEmail);
             const query = { userEmail };
+            // console.log(query);
             const result = await favouriteCollections.find(query).toArray();
+            // console.log(result);
             res.send(result);
         });
+
         app.post('/favourites', async (req, res) => {
             const favourite = req.body;
             const mealId = req.body.mealId;
@@ -193,6 +268,9 @@ async function run() {
             res.send(result);
 
         });
+
+        //payment related apis
+
 
 
         await client.db("admin").command({ ping: 1 });
