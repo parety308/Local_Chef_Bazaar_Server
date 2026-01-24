@@ -159,6 +159,11 @@ async function run() {
         })
 
         //order related apis
+        app.get('/orders', async (req, res) => {
+            const query = { orderStatus: 'pending' };
+            const result = await orderCollection.find(query).toArray();
+            res.send(result);
+        })
         app.get('/orders/:userEmail', async (req, res) => {
             const userEmail = req.params.userEmail;
             const orders = await orderCollection.find({ userEmail }).toArray();
