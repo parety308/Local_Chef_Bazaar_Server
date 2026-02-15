@@ -562,20 +562,20 @@ async function run() {
             }
         });
 
-        //review related apis 
+        //get all reviews api
         app.get('/all-reviews', verifyToken, async (req, res) => {
             const userEmail = req.decoded.email;
             const result = await reviewCollections.find().sort({ date: -1 }).toArray();
             res.send(result);
         });
-
+        // get reviews by meal id api
         app.get('/reviews/:mealId', async (req, res) => {
             const mealId = req.params.mealId;
             const query = { mealId };
             const result = await reviewCollections.find(query).sort({ date: -1 }).toArray();
             res.send(result);
         });
-
+        // get reviews by user email api
         app.get('/myreviews/:userEmail', async (req, res) => {
             const userEmail = req.params.userEmail;
             if (!userEmail) {
@@ -587,13 +587,13 @@ async function run() {
                 return res.send(result);
             }
         });
-
+        // create review api
         app.post('/reviews', async (req, res) => {
             const review = req.body;
             const result = await reviewCollections.insertOne(review);
             res.send(result);
         });
-
+        // update review api
         app.patch('/my-reviews/:id', async (req, res) => {
             const id = req.params.id;
             const { review, ratings } = req.body;
@@ -607,7 +607,7 @@ async function run() {
             const result = await reviewCollections.updateOne(query, updateRev);
             res.send(result);
         });
-
+        // delete review api
         app.delete('/my-reviews/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
