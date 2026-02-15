@@ -36,7 +36,7 @@ app.use(express.json());
 
 // allowing cross-origin requests 
 app.use(cors({
-    origin: ['https://email-password-auth-61ee5.web.app','https://local-chef-bazaar-online.netlify.app', 'http://localhost:5173'],
+    origin: ['https://email-password-auth-61ee5.web.app','https://local-chef-bazaar-online.netlify.app', 'http://localhost:5173', 'http://localhost:4173'],
     credentials: true
 }));
 
@@ -597,7 +597,7 @@ async function run() {
                 return res.status(400).send({ message: "User is required" });
             }
             else {
-                const query = { userEmail };
+                const query = { reviewerEmail: userEmail };
                 const result = await reviewCollections.find(query).sort({ date: -1 }).toArray();
                 return res.send(result);
             }
