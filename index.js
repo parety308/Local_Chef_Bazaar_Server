@@ -40,6 +40,7 @@ app.use(cors({
 }));
 app.use(cookieParser());
 
+// token verification middleware
 const verifyToken = (req, res, next) => {
     const token = req.cookies.token;
     if (!token) return res.status(401).send({ error: 'Unauthorized Access' });
@@ -80,7 +81,7 @@ async function run() {
         const orderCollection = db.collection('orders');
         const paymentCollections = db.collection('payments');
 
-        // middleware functions
+        // admin verification middleware
         const verifyAdmin = async (req, res, next) => {
             const decodedEmail = req.decoded.email;
             const user = await userCollections.findOne({ email: decodedEmail });
@@ -89,7 +90,7 @@ async function run() {
             }
             next();
         };
-
+        // chef verification middleware
         const verifyChef = async (req, res, next) => {
             const decodedEmail = req.decoded.email;
             const user = await userCollections.findOne({ email: decodedEmail });
@@ -99,17 +100,18 @@ async function run() {
             next();
         }
 
-        //user related api
+        //get all users api
         app.get('/users', verifyToken, verifyAdmin, async (_req, res) => {
             const cursor = await userCollections.find().toArray();
             res.send(cursor);
         });
+        // get user role api
         app.get('/users-role/:email', async (req, res) => {
             const email = req.params.email;
             const result = await userCollections.findOne({ email });
             res.send(result);
         })
-
+        // add user api
         app.post('/users', async (req, res) => {
             const user = req.body;
             const email = user.email;
@@ -122,7 +124,7 @@ async function run() {
                 return res.send(result);
             }
         });
-
+        // update user status api (for admin to block / unblock user)
         app.patch('/users/:email', async (req, res) => {
             const email = req.params.email;
             const { status } = req.body;
