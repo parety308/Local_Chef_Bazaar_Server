@@ -151,8 +151,8 @@ Authentication: Firebase
 **MD Parvez Hasan**  
 MERN Stack Developer
 
-📧 Email: parvezyesrat17032024@gmail.com 
-📱 Phone: +8801876097788 
-💼 LinkedIn: www.linkedin.com/in/md-parvez-hasan-967729344  
-🐙 GitHub:https://github.com/parety308
+- 📧 Email: parvezyesrat17032024@gmail.com 
+- 📱 Phone: +8801876097788 
+- 💼 LinkedIn: www.linkedin.com/in/md-parvez-hasan-967729344  
+- 🐙 GitHub:https://github.com/parety308
 
