@@ -615,7 +615,7 @@ async function run() {
             res.send(result);
         });
 
-        //favourite related apis 
+        // get favourite meals by user email api
         app.get('/favourites/:userEmail', verifyToken, async (req, res) => {
             const decodedEmail = req.decoded.email;
             const userEmail = req.params.userEmail;
@@ -627,6 +627,7 @@ async function run() {
             res.send(result);
         });
 
+        // add to favourite api
         app.post('/favourites', async (req, res) => {
             const favourite = req.body;
             const mealId = req.body.mealId;
@@ -640,7 +641,8 @@ async function run() {
                 return res.send(result);
             }
         });
-
+        
+        // delete from favourite api
         app.delete('/favourites/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
@@ -648,10 +650,6 @@ async function run() {
             res.send(result);
 
         });
-
-        //payment related apis
-
-
 
         // await client.db("admin").command({ ping: 1 });
         // console.log("Pinged your deployment. You successfully connected to MongoDB!");
