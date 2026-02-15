@@ -374,13 +374,14 @@ async function run() {
             res.send(result);
         })
 
-        //order related apis
+        //get orders api (for admin to see all pending and accepted orders)
         app.get('/orders', async (_req, res) => {
             const query = { orderStatus: { $in: ['pending', 'accepted'] } };
             const result = await orderCollection.find(query).sort({ orderTime: -1 }).toArray();
             res.send(result);
         });
 
+        // get my orders api (for user to see their own orders)
         app.get('/my-orders', verifyToken, async (req, res) => {
             const userEmail = req.decoded.email;
             const orders = await orderCollection
@@ -391,12 +392,13 @@ async function run() {
             res.send(orders);
         });
 
+        // create order api
         app.post('/orders', async (req, res) => {
             const orders = req.body;
             const result = await orderCollection.insertOne(orders);
             res.send(result);
         });
-
+        // update order status api
         app.patch('/orders/:id', async (req, res) => {
             const id = req.params.id;
             const { orderStatus } = req.body;
