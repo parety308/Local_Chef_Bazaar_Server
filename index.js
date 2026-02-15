@@ -283,12 +283,12 @@ async function run() {
 
         })
 
-        // meals related apis
+        // get all meals api
         app.get('/meals', async (_req, res) => {
-            const result = await mealCollections.find().sort({ createdAt: -1 }).toArray();
+            const result = await mealCollections.find().sort({ createdAt: -1 }).limit(6).toArray();
             res.send(result);
         });
-
+        // get all meals with pagination and sorting
         app.get('/total-meals', async (req, res) => {
             const page = parseInt(req.query.page) || 1;
             const limit = parseInt(req.query.limit) || 9;
@@ -308,7 +308,7 @@ async function run() {
             res.send({ meals, totalCount });
         });
 
-
+        // get single meal details api
         app.get('/meals/:id', async (req, res) => {
             try {
                 const id = req.params.id;
@@ -320,7 +320,7 @@ async function run() {
                 res.status(500).send({ message: 'Server error', error: error.message });
             }
         });
-
+        // get meals by chef email api
         app.get('/my-meals/:userEmail', verifyToken, verifyChef, async (req, res) => {
             const decodedEmail = req.decoded.email;
             const userEmail = req.params.userEmail;
@@ -330,13 +330,13 @@ async function run() {
             const result = await mealCollections.find({ userEmail }).sort({ createdAt: -1 }).toArray();
             res.send(result);
         });
-
+        // create meal api
         app.post('/meals', async (req, res) => {
             const meal = req.body;
             const result = await mealCollections.insertOne(meal);
             res.send(result);
         });
-
+        // update meal api
         app.patch('/meals/:id', async (req, res) => {
             try {
                 const id = req.params.id;
@@ -366,7 +366,7 @@ async function run() {
             }
         });
 
-
+        // delete meal api
         app.delete('/meals/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
