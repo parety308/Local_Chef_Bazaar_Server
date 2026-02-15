@@ -155,12 +155,14 @@ async function run() {
             res.send({ token: token });
         });
 
-        //user-request related apis
+        //get all users request api (for admin)
         app.get('/users-request', verifyToken, verifyAdmin, async (_req, res) => {
             const query = { requestStatus: 'pending' };
             const result = await userRequestCollection.find(query).sort({ requestTime: -1 }).toArray();
             res.send(result);
         });
+
+        // add user request api (for chef or admin role request)
         app.post('/users-request', async (req, res) => {
             const userRequest = req.body;
             const exists = await userRequestCollection.findOne({
@@ -178,6 +180,7 @@ async function run() {
 
         });
 
+        // update user request status api (for admin to approve / reject request)
         app.patch('/users-request/:userEmail', async (req, res) => {
             try {
                 const userEmail = req.params.userEmail;
@@ -272,7 +275,7 @@ async function run() {
             }
         });
 
-
+        // delete user request api
         app.delete('/users-request/:userEmail', async (req, res) => {
             const userEmail = req.params.userEmail;
             const user = await userRequestCollection.deleteOne({ userEmail });
