@@ -503,7 +503,7 @@ async function run() {
             return res.send({ success: false });
         });
 
-        //admin total payment api
+        // get total payment received api (for admin)
         app.get('/admin/total-payment', verifyToken, verifyAdmin, async (_req, res) => {
 
 
@@ -530,7 +530,7 @@ async function run() {
             }
         });
 
-        //admin order status count api
+        //get admin order status count api
         app.get('/admin-order-status-count', verifyToken, verifyAdmin, async (_req, res) => {
             try {
                 const result = await orderCollection.aggregate([
