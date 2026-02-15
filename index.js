@@ -36,7 +36,7 @@ app.use(express.json());
 
 // allowing cross-origin requests 
 app.use(cors({
-    origin: ['http://localhost:5173', 'https://email-password-auth-61ee5.web.app'],
+    origin: ['https://email-password-auth-61ee5.web.app','https://local-chef-bazaar-online.netlify.app', 'http://localhost:5173'],
     credentials: true
 }));
 
@@ -93,7 +93,7 @@ async function run() {
             }
             next();
         };
-        
+
         // chef verification middleware
         const verifyChef = async (req, res, next) => {
             const decodedEmail = req.decoded.email;
@@ -577,8 +577,7 @@ async function run() {
         });
 
         //get all reviews api
-        app.get('/all-reviews', verifyToken, async (req, res) => {
-            const userEmail = req.decoded.email;
+        app.get('/all-reviews',  async (req, res) => {
             const result = await reviewCollections.find().sort({ date: -1 }).toArray();
             res.send(result);
         });
