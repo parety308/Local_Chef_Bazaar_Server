@@ -8,7 +8,7 @@ const cookieParser = require('cookie-parser');
 const admin = require("firebase-admin");
 const crypto = require("crypto");
 
-
+// decoding firebase service account key from environment variable
 const decoded = Buffer.from(process.env.FB_SERVICE_ACCOUNT_KEY, 'base64').toString('utf8')
 const serviceAccount = JSON.parse(decoded);
 
@@ -18,7 +18,7 @@ admin.initializeApp({
 });
 
 
-
+// function to generate unique chef id
 function generateChefId() {
     const random = crypto
         .randomBytes(3)
@@ -641,7 +641,7 @@ async function run() {
                 return res.send(result);
             }
         });
-        
+
         // delete from favourite api
         app.delete('/favourites/:id', async (req, res) => {
             const id = req.params.id;
