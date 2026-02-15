@@ -414,7 +414,7 @@ async function run() {
             res.send(result);
         });
 
-        //payments related apis
+        // get payment details api
         app.get('/payments/:id', verifyToken, async (req, res) => {
             const userEmail = req.decoded.email;
             const id = req.params.id;
@@ -422,7 +422,7 @@ async function run() {
             const result = await paymentCollections.findOne(query);
             res.send(result);
         });
-
+        // create checkout session api
         app.post('/create-checkout-session', async (req, res) => {
             const mealInfo = req.body;
             const amount = parseInt(mealInfo.price) * 100;
@@ -452,7 +452,7 @@ async function run() {
 
             res.send({ url: session.url });
         });
-
+        // payment success api to verify payment and update order and payment details in database
         app.get('/payment-success', async (req, res) => {
             const sessionId = req.query.session_id;
             const session = await stripe.checkout.sessions.retrieve(sessionId);
