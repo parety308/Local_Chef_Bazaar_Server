@@ -12,7 +12,7 @@ const crypto = require("crypto");
 const decoded = Buffer.from(process.env.FB_SERVICE_ACCOUNT_KEY, 'base64').toString('utf8')
 const serviceAccount = JSON.parse(decoded);
 
-
+// initialize firebase admin sdk
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
 });
@@ -28,16 +28,19 @@ function generateChefId() {
     return `CHEF-${random}`;
 }
 
-
 const app = express()
 const port = process.env.PORT;
 
-//middleware
+// middleware
 app.use(express.json());
+
+// allowing cross-origin requests 
 app.use(cors({
     origin: ['http://localhost:5173', 'https://email-password-auth-61ee5.web.app'],
     credentials: true
 }));
+
+// middleware to parse cookies 
 app.use(cookieParser());
 
 // token verification middleware
@@ -90,6 +93,7 @@ async function run() {
             }
             next();
         };
+        
         // chef verification middleware
         const verifyChef = async (req, res, next) => {
             const decodedEmail = req.decoded.email;
@@ -105,12 +109,14 @@ async function run() {
             const cursor = await userCollections.find().toArray();
             res.send(cursor);
         });
+
         // get user role api
         app.get('/users-role/:email', async (req, res) => {
             const email = req.params.email;
             const result = await userCollections.findOne({ email });
             res.send(result);
-        })
+        });
+
         // add user api
         app.post('/users', async (req, res) => {
             const user = req.body;
@@ -124,6 +130,7 @@ async function run() {
                 return res.send(result);
             }
         });
+
         // update user status api (for admin to block / unblock user)
         app.patch('/users/:email', async (req, res) => {
             const email = req.params.email;
@@ -288,6 +295,7 @@ async function run() {
             const result = await mealCollections.find().sort({ createdAt: -1 }).limit(6).toArray();
             res.send(result);
         });
+
         // get all meals with pagination and sorting
         app.get('/total-meals', async (req, res) => {
             const page = parseInt(req.query.page) || 1;
@@ -320,6 +328,7 @@ async function run() {
                 res.status(500).send({ message: 'Server error', error: error.message });
             }
         });
+
         // get meals by chef email api
         app.get('/my-meals/:userEmail', verifyToken, verifyChef, async (req, res) => {
             const decodedEmail = req.decoded.email;
@@ -330,12 +339,14 @@ async function run() {
             const result = await mealCollections.find({ userEmail }).sort({ createdAt: -1 }).toArray();
             res.send(result);
         });
+
         // create meal api
         app.post('/meals', async (req, res) => {
             const meal = req.body;
             const result = await mealCollections.insertOne(meal);
             res.send(result);
         });
+
         // update meal api
         app.patch('/meals/:id', async (req, res) => {
             try {
@@ -398,6 +409,7 @@ async function run() {
             const result = await orderCollection.insertOne(orders);
             res.send(result);
         });
+
         // update order status api
         app.patch('/orders/:id', async (req, res) => {
             const id = req.params.id;
@@ -422,6 +434,7 @@ async function run() {
             const result = await paymentCollections.findOne(query);
             res.send(result);
         });
+
         // create checkout session api
         app.post('/create-checkout-session', async (req, res) => {
             const mealInfo = req.body;
@@ -452,6 +465,7 @@ async function run() {
 
             res.send({ url: session.url });
         });
+
         // payment success api to verify payment and update order and payment details in database
         app.get('/payment-success', async (req, res) => {
             const sessionId = req.query.session_id;
@@ -568,6 +582,7 @@ async function run() {
             const result = await reviewCollections.find().sort({ date: -1 }).toArray();
             res.send(result);
         });
+
         // get reviews by meal id api
         app.get('/reviews/:mealId', async (req, res) => {
             const mealId = req.params.mealId;
@@ -575,6 +590,7 @@ async function run() {
             const result = await reviewCollections.find(query).sort({ date: -1 }).toArray();
             res.send(result);
         });
+
         // get reviews by user email api
         app.get('/myreviews/:userEmail', async (req, res) => {
             const userEmail = req.params.userEmail;
@@ -587,12 +603,14 @@ async function run() {
                 return res.send(result);
             }
         });
+
         // create review api
         app.post('/reviews', async (req, res) => {
             const review = req.body;
             const result = await reviewCollections.insertOne(review);
             res.send(result);
         });
+
         // update review api
         app.patch('/my-reviews/:id', async (req, res) => {
             const id = req.params.id;
@@ -607,6 +625,7 @@ async function run() {
             const result = await reviewCollections.updateOne(query, updateRev);
             res.send(result);
         });
+
         // delete review api
         app.delete('/my-reviews/:id', async (req, res) => {
             const id = req.params.id;
